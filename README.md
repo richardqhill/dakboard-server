@@ -14,4 +14,3 @@ The publicly accessible web server only exposes non-input GET endpoints that ret
 TODO:
 - change auth from username/pass to something else
 - gunicorn WSGI server
-- dakboard.py + ngrok into docker-compose

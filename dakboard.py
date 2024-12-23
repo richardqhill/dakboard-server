@@ -1,8 +1,9 @@
 import requests
 import json
+import os
 
 from datetime import datetime, timedelta
-import os
+import pytz
 
 from flask import Flask
 from flask_httpauth import HTTPBasicAuth
@@ -40,11 +41,12 @@ def get_time_since_last_bottle():
     times = list(filter(lambda x: x != '', block_text.split(' ')))
     bottle_time = times[0].replace('上午','AM').replace('下午','PM').replace('\r','').replace('\n',' ').replace(' ','').replace(' ','')
 
-    is_from_yesterday = "PM" in bottle_time and datetime.now().hour < 12
+    origin_tz = pytz.timezone('America/New_York')
+    is_from_yesterday = "PM" in bottle_time and datetime.now(origin_tz).hour < 12
     days_to_subtract = 1 if is_from_yesterday else 0
 
-    bottle_datetime = datetime.strptime(bottle_time, "%I:%M%p") - timedelta(days=days_to_subtract)
-    now  = datetime.now()
+    bottle_datetime = datetime.strptime(bottle_time, "%I:%M%p").replace(tzinfo=origin_tz) - timedelta(days=days_to_subtract)
+    now  = datetime.now(origin_tz)
     duration = now - bottle_datetime
     hours = duration.seconds // 3600
     minutes = (duration.seconds % 3600) // 60
