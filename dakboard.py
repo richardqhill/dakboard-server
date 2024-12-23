@@ -45,8 +45,14 @@ def get_time_since_last_bottle():
     is_from_yesterday = "PM" in bottle_time and datetime.now(origin_tz).hour < 12
     days_to_subtract = 1 if is_from_yesterday else 0
 
-    bottle_datetime = datetime.strptime(bottle_time, "%I:%M%p").replace(tzinfo=origin_tz) - timedelta(days=days_to_subtract)
     now  = datetime.now(origin_tz)
+
+    bottle_datetime = datetime.strptime(f"{now.year} {now.month} {now.day} {bottle_time}", "%Y %m %d %I:%M%p")
+    bottle_datetime = origin_tz.localize(bottle_datetime)
+    if days_to_subtract:
+        bottle_datetime = bottle_datetime - timedelta(days=days_to_subtract)
+
+    
     duration = now - bottle_datetime
     hours = duration.seconds // 3600
     minutes = (duration.seconds % 3600) // 60
