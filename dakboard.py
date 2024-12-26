@@ -39,31 +39,31 @@ def get_time_since_last_bottle():
     block_text = content["text"] if "text" in content else content["text' = "]
 
     times = list(filter(lambda x: x != '', block_text.split(' ')))
-    bottle_time = times[0].replace('上午','AM').replace('下午','PM').replace('\r','').replace('\n',' ').replace(' ','').replace(' ','')
+    bottle_time = times[0].translate(str.maketrans({'\r': None, '\n': None, ' ': None, ' ': None}))
 
     origin_tz = pytz.timezone('America/New_York')
-    is_from_yesterday = "PM" in bottle_time and datetime.now(origin_tz).hour < 12
-    days_to_subtract = 1 if is_from_yesterday else 0
-
     now  = datetime.now(origin_tz)
 
     bottle_datetime = datetime.strptime(f"{now.year} {now.month} {now.day} {bottle_time}", "%Y %m %d %I:%M%p")
     bottle_datetime = origin_tz.localize(bottle_datetime)
-    if days_to_subtract:
-        bottle_datetime = bottle_datetime - timedelta(days=days_to_subtract)
 
-    
+    is_from_yesterday = "PM" in bottle_time and now.hour < 12
+    if is_from_yesterday:
+        bottle_datetime = bottle_datetime - timedelta(days=1)
+
     duration = now - bottle_datetime
     hours = duration.seconds // 3600
     minutes = (duration.seconds % 3600) // 60
 
-    if hours <= 1:
-        emoji = "🔴" 
-    elif hours <= 2:
-        emoji = "🤷‍♂️" 
-    else:
-        emoji = "👍" 
-
+    hours2Emoji = {
+        1: "🔴",
+        2: "🤷‍♂️",
+        3: "👍" ,
+        4: "🙌",
+        5: "🙌"
+    }
+    emoji = hours2Emoji[hours] if hours in hours2Emoji else "🔴"
+    
     return_string = f"{emoji} ~{hours}h {minutes}m"
     return {
         "pretty": return_string,
@@ -97,4 +97,4 @@ def get_tesla_stats():
         }
 
 if __name__ == '__main__':
-    app.run(port=8000, debug=True)
+    app.run(port=8000)
