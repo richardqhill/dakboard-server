@@ -5,6 +5,7 @@ from flask_httpauth import HTTPBasicAuth
 
 from huckleberry import get_time_since_last_bottle
 from teslamate import get_tesla_stats
+from switchbot import get_switchbot_stats
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -30,6 +31,11 @@ def bottle():
 @auth.login_required
 def tesla():
     return get_tesla_stats()
+
+@app.route('/switchbot', methods=['GET'])
+@auth.login_required
+def switchbot():
+    return get_switchbot_stats()
 
 if __name__ == '__main__':
     app.run(port=8000)
