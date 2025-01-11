@@ -4,3 +4,4 @@ include/
 pyvenv.cfg
 .env
 .DS_Store
+__pycache__
