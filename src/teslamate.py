@@ -2,6 +2,8 @@ import requests
 import json
 
 def get_tesla_stats():
+    # https://github.com/tobiasehlert/teslamateapi?tab=readme-ov-file#available-endpoints
+    
     try:
         response = requests.get(
             'http://localhost:8080/api/v1/cars/1/status'
