@@ -5,3 +5,4 @@ pyvenv.cfg
 .env
 .DS_Store
 __pycache__
+LocalSettings.php
