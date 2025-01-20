@@ -6,8 +6,6 @@ services:
       - .env
     ports:
       - "8000:8000"
-    networks:
-      - wikiweb
     volumes:
       - .:/app
 
@@ -55,8 +53,8 @@ services:
     image: eclipse-mosquitto:2
     restart: always
     command: mosquitto -c /mosquitto-no-auth.conf
-    # ports:
-    #   - 1883:1883
+    ports:
+      - 1883:1883
     volumes:
       - mosquitto-conf:/mosquitto/config
       - mosquitto-data:/mosquitto/data
@@ -81,9 +79,6 @@ services:
     build:
       context: ./mediawiki
       dockerfile: Dockerfile
-    networks:
-      - wikiweb
-      - wikidb
     volumes:
       - wikidata:/var/www/html
       - ./LocalSettings.php:/var/www/html/LocalSettings.php
@@ -96,8 +91,6 @@ services:
     volumes:
       - ./nginx/mediawiki.conf:/etc/nginx/nginx.conf
       - wikidata:/var/www/html
-    networks:
-      - wikiweb
     ports:
       - 80:80
   
@@ -109,8 +102,6 @@ services:
       POSTGRES_DB: wikidb
     volumes:
       - dbdata:/var/lib/postgresql/data
-    networks:
-      - wikidb
 
   ngrok:
     depends_on:
@@ -118,8 +109,6 @@ services:
     image: ngrok/ngrok
     environment:
       NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
-    networks:
-      - wikiweb
     command: http nginx:80 --url="${NGROK_SUBDOMAIN}.ngrok.io"
     ports:
       - "4040:4040"
@@ -131,7 +120,3 @@ volumes:
   mosquitto-data:
   wikidata:
   dbdata:
-
-networks:
-  wikiweb:
-  wikidb:
