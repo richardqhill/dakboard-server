@@ -12,3 +12,12 @@ This is not meant to be scalable but it is meant to be secure.
 This keeps teslamate access strictly limited to local network. 
 The publicly accessible web server only exposes non-input GET endpoints that return non-sensitive data.
 
+---
+
+This also hosts an instance of mediawiki. In docker-compose.yml, comment out the volume link for LocalSettings.php on first start.
+
+```
+docker-compose up
+```
+
+Navigate to http://localhost/mw-config/index.php and complete the initial setup.
