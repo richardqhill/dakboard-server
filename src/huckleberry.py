@@ -1,6 +1,6 @@
 import os
-import json
 import requests
+import re
 
 from datetime import datetime, timedelta
 import pytz
@@ -14,13 +14,17 @@ def get_time_since_last_bottle():
             'api_key': os.environ.get('DAKBOARD_API_KEY'),
         }
     )
+    data = get_text_response.json()
 
-    content = json.loads(get_text_response.content)
+    block_text = data["text"] if "text" in data else data["text' = "]
+    
+    # remove \u202f NARROW NO-BREAK SPACE
+    clean_block_text = re.sub(r"\u202f", "", block_text)
 
-    block_text = content["text"] if "text" in content else content["text' = "]
+    pattern = r"(\d{1,2}:\d{2}[APM]{2})"
+    timestamps = re.findall(pattern, clean_block_text)
 
-    times = list(filter(lambda x: x != '', block_text.split(' ')))
-    bottle_time = times[0].translate(str.maketrans({'\r': None, '\n': None, ' ': None, ' ': None}))
+    bottle_time = timestamps[0]
 
     origin_tz = pytz.timezone('America/New_York')
     now  = datetime.now(origin_tz)
@@ -39,11 +43,9 @@ def get_time_since_last_bottle():
     hours2Emoji = {
         1: "🔴",
         2: "🤷‍♂️",
-        3: "👍" ,
-        4: "🙌",
-        5: "🙌"
+        3: "👍" 
     }
-    emoji = hours2Emoji[hours] if hours in hours2Emoji else "🔴"
+    emoji = hours2Emoji[hours] if hours in hours2Emoji else "🙌"
     
     return_string = f"{emoji} ~{hours}h {minutes}m"
     return {
@@ -51,3 +53,6 @@ def get_time_since_last_bottle():
         "hours": hours,
         "minutes": minutes,
     }
+
+if __name__ == "__main__":
+    get_time_since_last_bottle()
