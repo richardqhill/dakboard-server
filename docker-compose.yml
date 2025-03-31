@@ -8,6 +8,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    network_mode: host
 
   teslamate:
     image: teslamate/teslamate:latest
@@ -75,48 +76,17 @@ services:
     ports:
       - 8080:8080
 
-  mediawiki:
-    build:
-      context: ./mediawiki
-      dockerfile: Dockerfile
-    volumes:
-      - wikidata:/var/www/html
-      - ./LocalSettings.php:/var/www/html/LocalSettings.php
-  
-  nginx:
-    depends_on:
-      - api
-      - mediawiki
-    image: nginx:1.21.5-alpine
-    volumes:
-      - ./nginx/mediawiki.conf:/etc/nginx/nginx.conf
-      - wikidata:/var/www/html
-    ports:
-      - 80:80
-  
-  mediawikidb:
-    image: postgres:14.1-alpine
-    environment:
-      POSTGRES_USER: wikiuser
-      POSTGRES_PASSWORD: ${DATABASE_PASS}
-      POSTGRES_DB: wikidb
-    volumes:
-      - dbdata:/var/lib/postgresql/data
-
   ngrok:
-    depends_on:
-      - nginx
     image: ngrok/ngrok
     environment:
       NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
-    command: http nginx:80 --url="${NGROK_SUBDOMAIN}.ngrok.io"
+    command: http 8000 --url="${NGROK_SUBDOMAIN}.ngrok.io"
+    network_mode: "host"
     ports:
-      - "4040:4040"
+      - "8000:8000"
 
 volumes:
   teslamate-db:
-  teslamate-grafana-data:
+  # teslamate-grafana-data:
   mosquitto-conf:
   mosquitto-data:
-  wikidata:
-  dbdata:

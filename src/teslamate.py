@@ -6,7 +6,7 @@ def get_tesla_stats():
     
     try:
         response = requests.get(
-            'http://teslamateapi:8080/api/v1/cars/1/status'
+            'http://localhost:8080/api/v1/cars/1/status'
         )
 
         content = json.loads(response.content)
