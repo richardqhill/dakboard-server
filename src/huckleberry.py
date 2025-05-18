@@ -41,9 +41,11 @@ def get_time_since_last_bottle():
     minutes = (duration.seconds % 3600) // 60
 
     hours2Emoji = {
+        0: "🔴",
         1: "🔴",
-        2: "🤷‍♂️",
-        3: "👍" 
+        2: "🔴",
+        3: "🤷‍♂️",
+        4: "👍" 
     }
     emoji = hours2Emoji[hours] if hours in hours2Emoji else "🙌"
     
