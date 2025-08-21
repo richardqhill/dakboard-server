@@ -1,35 +1,30 @@
 import os
-import requests
 import re
 
 from datetime import datetime, timedelta
 import pytz
-
-# In-memory cache to avoid repeated Dakboard API calls within the same minute
-_dakboard_cached_response: dict = {}
-_dakboard_cached_minute_key: str = ""
+from utils import request_with_retry
 
 def get_time_since_last_bottle():
     # https://documenter.getpostman.com/view/8098574/SVSGNAGs
     
-    # Generate a minute-level cache key (e.g., "2024-01-15 14:30")
-    now = datetime.now()
-    current_minute_key = now.strftime("%Y-%m-%d %H:%M")
-    
-    global _dakboard_cached_response, _dakboard_cached_minute_key
-    
-    # Return cached response if we already have data for this minute
-    if _dakboard_cached_minute_key == current_minute_key and _dakboard_cached_response:
-        return _dakboard_cached_response
-    
-    # Make the API request
-    get_text_response = requests.get(
+    # Make the API request with robust error handling
+    response = request_with_retry(
         'https://dakboard.com/api/2/screens/scr_05c6be82a04e/blocks/blk_674797965a7ea652830ea032',
-        params = {
-            'api_key': os.environ.get('DAKBOARD_API_KEY'),
-        }
+        params={'api_key': os.environ.get('DAKBOARD_API_KEY')}
     )
-    data = get_text_response.json()
+    
+    # If request failed, return error response
+    if response is None:
+        return {
+            "pretty": "🔴 API Error",
+            "hours": 0,
+            "minutes": 0,
+            "error": "Failed to fetch data from Dakboard"
+        }
+    
+    # Parse JSON response
+    data = response.json()
 
     block_text = data["text"] if "text" in data else data["text' = "]
     
@@ -70,10 +65,6 @@ def get_time_since_last_bottle():
         "hours": hours,
         "minutes": minutes,
     }
-    
-    # Store the result in Dakboard cache for this minute
-    _dakboard_cached_response = result
-    _dakboard_cached_minute_key = current_minute_key
     
     return result
 
